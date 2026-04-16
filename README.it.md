@@ -139,6 +139,7 @@ import Kronot
 - personalizzazione via environment con `Parameters` e `DesignTokens`
 - stringhe integrate localizzate
 - formattazione oraria adattata alla locale
+- esportazione opzionale dell’output formattato tramite `.kronotOutput(_:)`
 - supporto VoiceOver con adjustable actions
 - densità delle etichette radiali adattata a Dynamic Type
 - supporto a Differentiate Without Color
@@ -160,9 +161,6 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 24) {
             Kronot(range: $range)
-
-            Text("Start: \(range.start.hour):\(String(format: "%02d", range.start.minute))")
-            Text("End: \(range.end.hour):\(String(format: "%02d", range.end.minute))")
         }
         .padding()
     }
@@ -175,7 +173,7 @@ struct ContentView: View {
 
 Kronot aggiorna in tempo reale il `TimeRange` associato al binding durante l’interazione.
 
-Puoi leggere direttamente i valori selezionati dal binding:
+Puoi continuare a leggere direttamente i valori raw dal binding:
 
 ```swift
 let startHour = range.start.hour
@@ -185,7 +183,7 @@ let endHour = range.end.hour
 let endMinute = range.end.minute
 ```
 
-Puoi anche presentare i valori selezionati in modo più leggibile, includendo una durata formattata:
+Quando invece ti servono stringhe già pronte per l’interfaccia, allineate alla formattazione locale-aware risolta da Kronot, puoi esportare l’output del controllo con `.kronotOutput(_:)`:
 
 ```swift
 import SwiftUI
@@ -193,43 +191,45 @@ import Kronot
 
 struct ContentView: View {
     @State private var range: TimeRange = .currentTime(snapHours: 5)
+    @State private var output: Kronot.Output?
 
     var body: some View {
         VStack(spacing: 24) {
             Kronot(range: $range)
+                .kronotOutput($output)
 
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Intervallo selezionato")
-                    .font(.headline)
+            if let output {
+                VStack(alignment: .center, spacing: 12) {
+                    Text("Intervallo selezionato")
+                        .font(.headline)
 
-                Text("Inizio: \(formattedTime(range.start))")
-                Text("Fine: \(formattedTime(range.end))")
-                Text("Durata: \(formattedDuration(range.durationGoingForwardInMinutes))")
-            }
-            .frame(maxWidth: 320, alignment: .leading)
+                    Text("Inizio: \(output.start)")
+                    Text("Fine: \(output.end)")
+                    Text("Durata: \(output.duration)")
+                    Text("Range: \(output.range)")
+                }
+                            }
         }
         .padding()
-    }
-
-    private func formattedTime(_ components: TimeRange.Components) -> String {
-       let hour = components.hour
-       let minute = String(format: "%02d", components.minute)
-       return "\(hour):\(minute)"
-    }
-
-    private func formattedDuration(_ minutes: Int) -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.hour, .minute]
-        formatter.unitsStyle = .abbreviated
-        formatter.zeroFormattingBehavior = .dropAll
-
-        let seconds = TimeInterval(minutes * 60)
-        return formatter.string(from: seconds) ?? "\(minutes) min"
     }
 }
 ```
 
-Questo è utile soprattutto quando vuoi mostrare l’intervallo selezionato in altri punti dell’interfaccia, salvarlo, oppure mapparlo nel tuo modello di dominio.
+Questo è utile soprattutto quando vuoi mostrare l’intervallo selezionato in altri punti dell’interfaccia senza ricostruire a mano formattazione di orari e durata nella host view.
+
+### Valori raw vs output esportato
+
+Usa i valori raw quando ti serve il dato:
+
+```swift
+range.start.hour
+range.start.minute
+range.end.hour
+range.end.minute
+range.durationGoingForwardInMinutes
+```
+
+Usa `.kronotOutput(_:)` quando ti servono stringhe già pronte per la presentazione, coerenti con la formattazione risolta da Kronot.
 
 ---
 
@@ -514,8 +514,7 @@ struct DemoView: View {
 
     var body: some View {
         Kronot(range: $range)
-            .frame(width: 320, height: 320)
-            .parameters { parameters in
+                        .parameters { parameters in
                 parameters.behavior.snapMode = .everyQuarterHour
                 parameters.behavior.minActiveHours = 2
                 parameters.behavior.maxActiveHours = 12
@@ -526,7 +525,7 @@ struct DemoView: View {
             }
             .designTokens { tokens in
                 tokens.track.lineWidth = 24
-                tokens.track.inset = 10
+                tokens.track.inset = 8
                 tokens.track.setStyle(.solid(.secondary.opacity(0.15)), for: .base)
                 tokens.track.setStyle(.angular(.indigo, .purple, .pink), for: .range)
                 tokens.track.markerColor = .white.opacity(0.7)

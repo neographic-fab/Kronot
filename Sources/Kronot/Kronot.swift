@@ -90,6 +90,8 @@ public struct Kronot: View {
             .gesture(dragGesture(in: layout))
             .frame(width: layout.side, height: layout.side)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Publishes Kronot.Output via KronotOutputPreferenceKey for external consumers
+            .preference(key: KronotOutputPreferenceKey.self, value: resolvedOutput)
             .overlay {
                 ZStack {
                     ForEach(RangeReference.allCases, id: \.self) { reference in
@@ -99,6 +101,25 @@ public struct Kronot: View {
                 .allowsHitTesting(false)
             }
         }
+    }
+}
+
+// MARK: - Formatted Output Publication
+private extension Kronot {
+    /// Builds the formatted `Kronot.Output` for external readouts.
+    ///
+    /// - start: Localized time text for the range start.
+    /// - end: Localized time text for the range end.
+    /// - duration: Localized duration text for the forward interval.
+    /// - range: Convenience combined text in the form "<start> - <end>".
+    ///
+    /// Values are produced using `KronotFormatter` with the current locale and
+    /// content configuration.
+    var resolvedOutput: Output {
+        .init(start: formatter.timeText(for: range.start),
+              end: formatter.timeText(for: range.end),
+              duration: formatter.durationText(for: range),
+              range: "\(formatter.timeText(for: range.start)) - \(formatter.timeText(for: range.end))")
     }
 }
 
@@ -118,7 +139,6 @@ extension Kronot {
 
 // MARK: - Accessibility Elements
 private extension Kronot {
-    @ViewBuilder
     func accessibilityHandle(for reference: RangeReference, in layout: RadialLayout) -> some View {
         AccessibilityHandle(
             for: reference,
@@ -150,9 +170,7 @@ private extension Kronot {
         let time = formatter.timeText(for: reference.value(in: range))
         let argument = "\(String(localized: reference.accessibilityLabelKey)), \(time)"
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            UIAccessibility.post(notification: .announcement, argument: argument)
-        }
+        UIAccessibility.post(notification: .announcement, argument: argument)
     }
     
     /// Converts an accessibility adjustment direction into a minute delta.
@@ -218,3 +236,4 @@ private extension Kronot {
             param.behavior.snapMode = .everyQuarterHour
         }
 }
+
