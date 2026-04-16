@@ -17,6 +17,21 @@ Kronot mantiene l’API pubblica di integrazione abbastanza piccola, ma espone d
 - `Parameters` per comportamento e contenuto
 - `DesignTokens` per lo stile visivo
 
+## Anteprima
+
+### Default
+![Kronot default](Images/default_Kronot.png)
+
+### Dark Mode
+![Kronot customized](Images/darkMode_Kronot.png)
+
+### Azioni
+![Kronot localized](Images/move_start_Kronot.png)
+
+### Localizzato
+![Kronot accessibility](Images/arabic_Kronot_Translate.png)
+
+
 ## Requisiti
 
 Attualmente Kronot richiede:

@@ -11,6 +11,20 @@ Kronot keeps its public integration surface small while exposing two clear custo
 - `Parameters` for behavior and content
 - `DesignTokens` for visual styling
 
+## Preview
+
+### Default
+![Kronot default](Images/default_Kronot.png)
+
+### Dark Mode
+![Kronot customized](Images/darkMode_Kronot.png)
+
+### Action
+![Kronot localized](Images/move_start_Kronot.png)
+
+### Localized
+![Kronot accessibility](Images/arabic_Kronot_Translate.png)
+
 ## Requirements
 
 Kronot currently requires:

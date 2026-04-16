@@ -83,7 +83,7 @@ public extension DesignTokens {
         public var markerColor: Color = .white.opacity(0.5)
         
         /// Visual style used by the base track segment.
-        private var baseStyle: TrackStyle = .solid(.secondary.opacity(0.1))
+        private var baseStyle: TrackStyle = .solid(.secondary.opacity(0.2))
         
         /// Visual style used by the active track segment.
         private var rangeStyle: TrackStyle = .angular(.green, .red)
