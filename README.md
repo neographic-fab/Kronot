@@ -57,8 +57,6 @@ Kronot keeps its public integration surface small while exposing two clear custo
 
 ## Preview
 
-![Kronot demo](Images/kronot-demo.gif)
-
 | Default | Dark Mode |
 |---|---|
 | ![Kronot default](Images/default_Kronot.png) | ![Kronot dark mode](Images/darkMode_Kronot.png) |
