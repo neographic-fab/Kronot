@@ -7,32 +7,50 @@
 
 import SwiftUI
 
-/// Tokens for thumb visuals.
+/// Visual tokens for drag controls.
 ///
-/// Defines appearance only; no layout, gesture, or hit-testing logic.
-/// Intended to parameterize the look of start/end thumbs.
+/// `ThumbTokens` defines the appearance of the start and end drag handles.
 public extension DesignTokens {
     struct ThumbTokens {
-        /// Visual descriptor for a single thumb.
+        /// Visual appearance for a single drag handle.
         public struct Appearance {
-            /// Relative scale against track line width.
+            /// Relative scale factor based on the track width.
             public var scale: Scale = .large
+            
+            /// Whether a shadow is shown below the handle.
             public var showShadow: Bool = true
+            
+            /// Shadow color used by the handle.
             public var shadowColor: Color = .primary.opacity(0.2)
+            
+            /// Whether an icon is shown at the center of the handle.
             public var showIcon: Bool = true
+            
+            /// Icon color.
             public var iconColor: Color = .primary
+            
+            /// SF Symbols name used for the icon.
             public var iconSystemName: String = "clock.fill"
+            
+            /// Fill color of the handle.
             public var color: Color = .white
 
+            /// Blur radius used for the handle shadow.
             internal var shadowRadius: CGFloat = 2.0
+            
+            /// Offset applied to the handle shadow.
             internal var shadowOffset: CGPoint = .init(x: .zero, y: 1)
         }
 
-        /// Discrete scale options for thumbs.
+        /// Discrete scaling options for drag handles.
         public enum Scale {
+            /// Preset scale values.
             case small, medium, large
+            
+            /// Custom scale factor relative to the track width.
             case factor(CGFloat)
 
+            /// Numeric factor associated with the selected scale.
             var factor: CGFloat {
                 switch self {
                 case .small: 0.3
@@ -43,15 +61,21 @@ public extension DesignTokens {
             }
         }
 
-        /// Start thumb appearance.
+        /// Appearance of the start handle.
         public var start: Appearance = .init()
-        /// End thumb appearance.
+        
+        /// Appearance of the end handle.
         public var end: Appearance = .init()
     }
 }
 
 // MARK: - Sanitization
 extension DesignTokens.ThumbTokens {
+    /// Returns a sanitized copy of a single handle appearance.
+    ///
+    /// Applied rules:
+    /// - if `scale` is `.factor`, the value is clamped to `0.1...1.5`
+    /// - preset scale values are left unchanged
     private func sanitizedAppearance(_ appearance: Appearance) -> Appearance {
         var copy = appearance
         if case .factor(let factor) = copy.scale {
@@ -60,6 +84,9 @@ extension DesignTokens.ThumbTokens {
         return copy
     }
 
+    /// Returns a sanitized copy of the drag handle tokens.
+    ///
+    /// - Returns: A sanitized copy of `ThumbTokens`, ready for rendering.
     func sanitized() -> Self {
         var copy = self
         copy.start = copy.sanitizedAppearance(copy.start)

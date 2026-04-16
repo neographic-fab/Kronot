@@ -2,37 +2,40 @@
 //  KronotFormatter.swift
 //  Kronot
 //
-//  Created by Fabio Floris on 09/04/2026.
+//  Created by Fabio Floris on 09/04/2026
 //
 
 import Foundation
 
-/// Formatter per le stringhe testuali di Kronot (etichette radiali, orari, durate).
+/// Formatter used by Kronot for textual output.
 ///
-/// Centralizza la formattazione locale per le letture e per le etichette del quadrante.
+/// `KronotFormatter` centralizes locale-aware formatting for:
+/// - radial labels around the dial
+/// - time readouts
+/// - duration strings
 struct KronotFormatter {
     private let locale: Locale
     private let showMeridiem: Bool
     private var calendar: Calendar = .current
     
-    /// Crea un formatter con la locale e la preferenza per il meridiem.
+    /// Creates a formatter with the specified locale and meridiem preference.
     ///
     /// - Parameters:
-    ///   - locale: La locale usata per la formattazione di numeri e orari.
-    ///   - showMeridiem: Indica se mostrare le etichette AM/PM nei formati a 12 ore.
+    ///   - locale: Locale used to format numbers and time values.
+    ///   - showMeridiem: Whether AM/PM markers should be shown when using 12-hour formatting.
     init(locale: Locale, showMeridiem: Bool) {
         self.locale = locale
         self.showMeridiem = showMeridiem
         calendar.locale = locale
     }
     
-    /// Restituisce l'etichetta radiale per l'ora indicata.
+    /// Returns the radial label for the specified hour.
     ///
-    /// L'etichetta rispetta la preferenza 24h della locale e, se configurato,
-    /// usa i simboli AM/PM.
+    /// The label respects the locale’s 24-hour preference and,
+    /// when enabled, may use localized AM/PM symbols.
     ///
-    /// - Parameter hour: L'ora in formato 24h (0-23).
-    /// - Returns: Un'etichetta localizzata per il tick radiale.
+    /// - Parameter hour: Hour in 24-hour format (`0...23`).
+    /// - Returns: A localized radial label string.
     func radialLabel(for hour: Int) -> String {
         if locale.uses24h { return localizedNumber(hour) }
         
@@ -47,14 +50,13 @@ struct KronotFormatter {
         }
         
         let hour12 = (hour % 12 == .zero) ? 12 : (hour % 12)
-        
         return localizedNumber(hour12)
     }
     
-    /// Restituisce il numero formattato secondo la locale.
+    /// Returns a number formatted according to the current locale.
     ///
-    /// - Parameter value: Il valore intero da formattare.
-    /// - Returns: Una stringa decimale localizzata.
+    /// - Parameter value: Integer value to format.
+    /// - Returns: A localized decimal string.
     private func localizedNumber(_ value: Int) -> String {
         let formatter = NumberFormatter()
         formatter.locale = locale
@@ -64,51 +66,62 @@ struct KronotFormatter {
 }
 
 extension KronotFormatter {
-    /// Restituisce il testo orario formattato per i componenti indicati.
+    
+    // MARK: - Time Formatting
+    
+    /// Returns a localized time string for the provided components.
     ///
-    /// - Parameter components: Componenti di ora e minuto da formattare.
-    /// - Returns: Una stringa oraria localizzata.
+    /// - Parameter components: Hour and minute components to format.
+    /// - Returns: A localized short time string.
     func timeText(for components: TimeRange.Components) -> String {
         var dateComponents = DateComponents()
         dateComponents.hour = components.hour
         dateComponents.minute = components.minute
+        
         let date = calendar.date(from: dateComponents) ?? Date()
+        
         let formatter = DateFormatter()
         formatter.locale = locale
         formatter.timeStyle = .short
+        
         return formatter.string(from: date)
     }
     
-    /// Restituisce il testo della durata (ore e minuti) per l'intervallo.
+    /// Returns a localized duration string for the given range.
     ///
-    /// L'output omette i componenti a zero.
+    /// The output uses abbreviated units and omits zero-valued components.
     ///
-    /// - Parameter range: L'intervallo da riassumere.
-    /// - Returns: Una durata abbreviata e localizzata.
+    /// - Parameter range: Range whose duration should be formatted.
+    /// - Returns: A short localized duration string.
     func durationText(for range: TimeRange) -> String {
         let clampedMinutes = max(.zero, range.durationGoingForwardInMinutes)
+        
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.hour, .minute]
         formatter.unitsStyle = .abbreviated
         formatter.zeroFormattingBehavior = .dropAll
         formatter.calendar = calendar
+        
         let seconds = TimeInterval(clampedMinutes * TimeRange.minutesPerHour)
         return formatter.string(from: seconds) ?? ""
     }
 }
 
 extension Locale {
-    /// Indica se la locale usa il formato orario a 24 ore.
+    /// Returns whether the locale uses a 24-hour time format.
     ///
-    /// - Returns: `true` se la locale usa il formato 24h, altrimenti `false`.
+    /// The result is derived from the locale’s date formatting template.
+    ///
+    /// - Returns: `true` when the locale uses 24-hour time, otherwise `false`.
     var uses24h: Bool {
         guard let format = DateFormatter.dateFormat(
             fromTemplate: "j",
             options: .zero,
-            locale: self)
-        else {
+            locale: self
+        ) else {
             return true
         }
+        
         return !format.contains("a")
     }
 }

@@ -476,6 +476,31 @@ swift test
 - The component is designed around a 24-hour circular model of the day.
 - Styling and behavior are intentionally split so integration stays small while customization remains flexible.
 
+## Acknowledgments
+
+Kronot was shaped with the support of people who generously helped during development:
+
+- **Artem Mirzabekian**  
+  LinkedIn: https://www.linkedin.com/in/artem-mirzabekian/  
+  GitHub: https://github.com/Livsy90 
+  Artem provided valuable and important support and was especially helpful during the VoiceOver implementation.
+
+- **Andrei Ilnitskii**  
+  LinkedIn: https://www.linkedin.com/in/andreiilnitskii/  
+  GitHub: https://github.com/indieupme
+  Andrei played a key role in the localization work, with especially important support for the Russian localization.
+  
+## Localization Review
+
+Additional localization review was provided by native speakers for:
+
+- Simplified Chinese
+- Traditional Chinese
+- Romanian
+- Arabic
+
+These reviews were provided privately by native speakers who are not publicly listed here.
+  
 ## License
 
 Kronot is released under the **MIT License**.

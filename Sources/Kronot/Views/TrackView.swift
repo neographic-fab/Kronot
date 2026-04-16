@@ -1,5 +1,5 @@
 //
-//  Track.swift
+//  TrackView.swift
 //  Kronot
 //
 //  Created by Fabio Floris on 10/04/2026.
@@ -7,21 +7,23 @@
 
 import SwiftUI
 
-/// Disegna la geometria dell'arco di Kronot.
+/// Internal shape used to draw either the full track or the active range arc.
 ///
-/// `TrackShape` può rappresentare:
-/// - il track completo
-/// - il range attivo
-///
-/// Non contiene logica di stile, gesture o formattazione.
+/// `TrackShape` does not contain styling logic.
+/// It receives resolved angles and layout information, and only draws
+/// the corresponding arc path.
 private struct TrackShape: InsettableShape {
     
+    /// Role of the shape: full track or active range arc.
     enum Role {
-        /// Disegna il cerchio completo del track.
-        case track
-        /// Disegna l'intervallo attivo del range.
-        /// Le frazioni sono attese nel range `0...1` e vengono mappate ad angoli
-        /// tramite `layout.angle(for:)`. Il tracciamento dell'arco avviene in senso antiorario.
+        /// Draws the full circular track.
+        case base
+        
+        /// Draws the active range segment.
+        ///
+        /// Fractions are expected in the `0...1` range and are converted to angles
+        /// through `layout.angle(for:)`.
+        /// The arc is drawn counterclockwise.
         case range(_ startFraction: Double, _ endFraction: Double)
     }
     
@@ -35,26 +37,38 @@ private struct TrackShape: InsettableShape {
         return copy
     }
     
+    /// Builds the arc path using the resolved angles and inset amount.
     func path(in rect: CGRect) -> Path {
         let angles = resolvedAngles()
         var path = Path()
-        path.addArc(center: layout.center,
-                    radius: layout.radius(insetBy: insetAmount),
-                    startAngle: angles.start,
-                    endAngle: angles.end,
-                    clockwise: false)
+        path.addArc(
+            center: layout.center,
+            radius: layout.radius(insetBy: insetAmount),
+            startAngle: angles.start,
+            endAngle: angles.end,
+            clockwise: false
+        )
         return path
     }
 }
 
 private extension TrackShape {
-    /// Restituisce gli angoli effettivi usati per disegnare la shape.
-    /// - Per il track, copre l'intero giro del quadrante (fractions 0 → 1).
-    /// - Per il range, calcola `start` ed `end` mappando le frazioni `0...1` tramite
-    ///   `layout.angle(for:)`, e disegna l'arco tra i due angoli in senso antiorario.
+    
+    // MARK: - Angle Resolution
+    
+    /// Returns the effective angles used to draw the shape.
+    ///
+    /// - For the full track, the arc covers the complete dial (`0 → 1`).
+    /// - For the active range, start and end angles are derived from the provided
+    ///   `0...1` fractions through `layout.angle(for:)`, and the arc is drawn
+    ///   counterclockwise between them.
+    ///
+    /// - Returns: The start and end angles used to build the arc path.
     func resolvedAngles() -> (start: Angle, end: Angle) {
         switch role {
-        case .track: return (start: layout.angle(for: .zero), end: layout.angle(for: 1.0))
+        case .base:
+            return (start: layout.angle(for: .zero), end: layout.angle(for: 1.0))
+            
         case let .range(startFraction, endFraction):
             let startAngle = layout.angle(for: startFraction)
             let endAngle = layout.angle(for: endFraction)
@@ -63,98 +77,98 @@ private extension TrackShape {
     }
 }
 
-
-/// Disegna il layer dell'arco di Kronot:
-/// - track completo
-/// - range attivo
+/// Composes the visual track layer and the active range arc.
 ///
-/// `TrackView` riceve valori già pronti per il rendering.
-/// Non contiene logica di dominio, gesture o formattazione.
-/// `TrackView` assume di essere disegnato in uno spazio coerente con `layout.referenceSize`.
-/// Nelle preview o negli usi isolati, applicare un frame compatibile con il layout passato.
+/// `TrackView` reads dimensions and styling from `DesignTokens`
+/// and resolves angles through `RadialLayout`.
 struct TrackView: View {
     let layout: RadialLayout
-    let fractions: (start: Double, end: Double)
+    let fractions: (RangeReference) -> Double
     
     @Environment(\.designTokens) private var tokens
     @Environment(\.accessibilityDifferentiateWithoutColor) private var differentiateWithoutColor
     
     var body: some View {
         Group {
-            TrackShape(role: .track, layout: layout)
+            TrackShape(role: .base, layout: layout)
                 .inset(by: tokens.track.inset)
-                .strokeBorder(trackShapeStyle, style: strokeStyle)
+                .strokeBorder(baseShapeStyle, style: strokeStyle)
                 
-            TrackShape(role: .range(fractions.start, fractions.end), layout: layout)
-            .inset(by: tokens.arc.inset)
-            .strokeBorder(rangeShapeStyle, style: strokeStyle)
-            .overlay {
-                if tokens.arc.showMarker || differentiateWithoutColor {
-                    // TODO: Reintroduce marker when available (ArcMarker/TrackMarker).
-                    // ArcMarker(layout: layout, fractions: fractions)
+            TrackShape(role: .range(fractions(.start), fractions(.end)), layout: layout)
+                .inset(by: tokens.track.inset)
+                .strokeBorder(rangeShapeStyle, style: strokeStyle)
+                .overlay {
+                    if tokens.track.showMarker || differentiateWithoutColor {
+                        TrackMarker(layout: layout, fractions: fractions)
+                    }
                 }
-            }
         }
         .accessibilityHidden(true)
     }
 }
 
 private extension TrackView {
+    
+    // MARK: - Stroke Configuration
+    
+    /// Shared stroke style used by both the base track and the active range.
     var strokeStyle: StrokeStyle {
-        .init(lineWidth: tokens.track.lineWidth, lineCap: tokens.arc.lineCap)
+        .init(lineWidth: tokens.track.lineWidth, lineCap: tokens.track.lineCap)
     }
-    /// Restituisce gli angoli usati per disegnare il track completo.
+    
+    // MARK: - Angle Resolution
+    
+    /// Angles used to draw the full track (`0 → 360°`).
     var trackAngles: (start: Angle, end: Angle) {
         let start = layout.zeroAngle
         let end = start + .degrees(360.0)
         return (start, end)
     }
-    /// Restituisce gli angoli del range attivo a partire dalle frazioni già risolte.
+    
+    /// Angles used to draw the active range, derived from the current fractions.
     var rangeAngles: (start: Angle, end: Angle) {
-        let start = layout.angle(for: fractions.start)
-        var delta = fractions.end - fractions.start
+        let start = layout.angle(for: fractions(.start))
+        var delta = fractions(.end) - fractions(.start)
 
         if delta < .zero { delta += 1 }
 
         let end = start + .degrees(360.0 * delta)
         return (start, end)
     }
-    /// Converte `ArcStyle` nello `ShapeStyle` concreto usato per lo stroke.
+    
+    // MARK: - Shape Style Resolution
+    
+    /// Converts a `TrackStyle` into a concrete `ShapeStyle`,
+    /// including support for angular gradients.
     ///
-    /// Per i gradienti angolari usa gli angoli già risolti dal chiamante.
-    func shapeStyle(_ style: ArcStyle, angles: (start: Angle, end: Angle)) -> AnyShapeStyle {
+    /// - Parameters:
+    ///   - style: The abstract track style to resolve.
+    ///   - angles: The angular span used by the style.
+    /// - Returns: A concrete shape style ready for drawing.
+    func shapeStyle(_ style: TrackStyle, angles: (start: Angle, end: Angle)) -> AnyShapeStyle {
         switch style {
-        case .solid(let color): return AnyShapeStyle(color)
+        case .solid(let color):
+            return AnyShapeStyle(color)
+            
         case .angularGradient(let colors, let center):
             return AnyShapeStyle(
-                AngularGradient(colors: colors, center: center, startAngle: angles.start, endAngle: angles.end)
+                AngularGradient(
+                    colors: colors,
+                    center: center,
+                    startAngle: angles.start,
+                    endAngle: angles.end
+                )
             )
         }
     }
-    var trackShapeStyle: AnyShapeStyle {
-        shapeStyle(tokens.track.trackArcStyle, angles: trackAngles)
+    
+    /// Visual style used for the base track.
+    var baseShapeStyle: AnyShapeStyle {
+        shapeStyle(tokens.track.style(for: .base), angles: trackAngles)
     }
     
+    /// Visual style used for the active range arc.
     var rangeShapeStyle: AnyShapeStyle {
-        shapeStyle(tokens.track.rangeArcStyle, angles: rangeAngles)
+        shapeStyle(tokens.track.style(for: .range), angles: rangeAngles)
     }
 }
-
-#Preview {
-    let layout = RadialLayout(
-        referenceSize: .init(width: 300, height: 300)
-    )
-
-    TrackView(
-        layout: layout,
-        fractions: (start: 0.2, end: 0.8)
-    )
-    .designTokens { tokens in
-        tokens.track.lineWidth = 24
-        tokens.track.inset = 12
-        tokens.track.trackArcStyle = .solid(.gray.opacity(0.25))
-        tokens.track.rangeArcStyle = .angular(Color.green, Color.red)
-    }
-    .frame(width: 300, height: 300)
-}
-

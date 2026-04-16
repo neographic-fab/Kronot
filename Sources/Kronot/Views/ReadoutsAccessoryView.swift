@@ -7,19 +7,21 @@
 
 import SwiftUI
 
-/// View che renderizza l'accessorio del readout (start/end) in base ai parametri.
+/// Renders the readout accessory for the specified reference.
 ///
-/// L'accessorio è configurabile tramite `Parameters.Content.Readout` e può essere:
-/// - `.none`: nessun elemento
-/// - `.text(String)`: testo descrittivo
-/// - `.icon(systemName:)`: icona SF Symbols
+/// The accessory is configured through `Parameters.Content.Readout` and may be:
+/// - `.none`: no accessory
+/// - `.text(LocalizedStringResource)`: localized text
+/// - `.verbatim(String)`: verbatim text
+/// - `.icon(systemName:)`: SF Symbols icon
 struct ReadoutsAccessoryView: View {
-    /// Riferimento a cui associare l'accessorio (start o end).
+    /// Reference associated with the accessory, either start or end.
     let reference: RangeReference
-    /// Parametri ambientali del componente.
+    
+    /// Environment parameters used by the component.
     @Environment(\.parameters) private var parameters
     
-    /// Accessorio risolto per il riferimento corrente.
+    /// Accessory resolved for the current reference.
     private var accessory: Parameters.Content.Readout.Accessory? {
         let resolved: Parameters.Content.Readout.Accessory
         switch reference {
@@ -27,17 +29,18 @@ struct ReadoutsAccessoryView: View {
         case .end: resolved = parameters.content.readout.end
         }
         
-        if case .none = resolved {
-            return nil
-        }
+        if case .none = resolved { return nil }
         
         return resolved
     }
     
-    /// Corpo della view: renderizza l'accessorio in base al tipo configurato.
+    /// Renders the accessory using the configured content type.
+    @ViewBuilder
     var body: some View {
         if case let .text(string)? = accessory {
             Text(string)
+        } else if case let .verbatim(string)? = accessory {
+            Text(verbatim: string)
         } else if case let .icon(systemName)? = accessory {
             Image(systemName: systemName)
         }
