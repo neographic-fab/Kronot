@@ -160,7 +160,6 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 24) {
             Kronot(range: $range)
-                .frame(width: 320, height: 320)
 
             Text("Start: \(range.start.hour):\(String(format: "%02d", range.start.minute))")
             Text("End: \(range.end.hour):\(String(format: "%02d", range.end.minute))")
@@ -198,7 +197,6 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 24) {
             Kronot(range: $range)
-                .frame(width: 320, height: 320)
 
             VStack(alignment: .leading, spacing: 12) {
                 Text("Intervallo selezionato")
