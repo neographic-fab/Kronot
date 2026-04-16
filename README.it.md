@@ -49,6 +49,12 @@ Kronot mantiene l’API pubblica di integrazione abbastanza piccola, ma espone d
 
 ---
 
+## Demo
+
+<p align="center">
+  <img src="Images/kronot-demo.gif" alt="Kronot demo" width="500">
+</p>
+
 ## Anteprima
 
 | Default | Dark Mode |

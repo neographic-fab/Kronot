@@ -49,7 +49,15 @@ Kronot keeps its public integration surface small while exposing two clear custo
 
 ---
 
+## Demo
+
+<p align="center">
+  <img src="Images/kronot-demo.gif" alt="Kronot demo" width="500">
+</p>
+
 ## Preview
+
+![Kronot demo](Images/kronot-demo.gif)
 
 | Default | Dark Mode |
 |---|---|
