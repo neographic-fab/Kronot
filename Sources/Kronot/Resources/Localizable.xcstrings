@@ -43,7 +43,7 @@
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "समाप्ति समय"
+            "value" : "अंतिम समय"
           }
         },
         "id" : {
@@ -180,7 +180,7 @@
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "प्रारंभ समय"
+            "value" : "शुरुआती समय"
           }
         },
         "id" : {
@@ -317,7 +317,7 @@
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "समाप्ति"
+            "value" : "अंत"
           }
         },
         "id" : {
@@ -454,7 +454,7 @@
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "प्रारंभ"
+            "value" : "शुरुआत"
           }
         },
         "id" : {

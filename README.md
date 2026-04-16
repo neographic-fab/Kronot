@@ -1,29 +1,65 @@
+<div align="center">
+
 # Kronot
+
+### A customizable radial time-range picker for SwiftUI
 
 [Italian version](README.it.md)
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+![iOS](https://img.shields.io/badge/iOS-18%2B-black)
+![Swift](https://img.shields.io/badge/Swift-6-orange)
+![SPM](https://img.shields.io/badge/SPM-supported-blue)
+
+</div>
+
 **Kronot** is a native SwiftUI control for selecting a **time range on a 24-hour radial dial**.
 
-It is designed for interfaces where a visual slice of the day is clearer than a traditional picker, such as sleep schedules, availability windows, focus sessions, routines, and any experience where users should *see* the selected portion of the day.
+It is designed for interfaces where a visual slice of the day is clearer than a traditional picker, such as:
+
+- sleep schedules
+- availability windows
+- focus sessions
+- daily routines
+- any experience where users should *see* the selected portion of the day
 
 Kronot keeps its public integration surface small while exposing two clear customization layers:
 
 - `Parameters` for behavior and content
 - `DesignTokens` for visual styling
 
+---
+
+## Contents
+
+- [Preview](#preview)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Core Model](#core-model)
+- [Interaction Model](#interaction-model)
+- [Configuration Overview](#configuration-overview)
+- [Localization](#localization)
+- [Accessibility](#accessibility)
+- [Testing](#testing)
+- [Acknowledgments](#acknowledgments)
+- [Localization Review](#localization-review)
+- [License](#license)
+
+---
+
 ## Preview
 
-### Default
-![Kronot default](Images/default_Kronot.png)
+| Default | Dark Mode |
+|---|---|
+| ![Kronot default](Images/default_Kronot.png) | ![Kronot dark mode](Images/darkMode_Kronot.png) |
 
-### Dark Mode
-![Kronot customized](Images/darkMode_Kronot.png)
+| Action | Localized |
+|---|---|
+| ![Kronot action](Images/move_start_Kronot.png) | ![Kronot localized](Images/arabic_Kronot_Translate.png) |
 
-### Action
-![Kronot localized](Images/move_start_Kronot.png)
-
-### Localized
-![Kronot accessibility](Images/arabic_Kronot_Translate.png)
+---
 
 ## Requirements
 
@@ -42,20 +78,28 @@ platforms: [.iOS(.v18)]
 swiftLanguageModes: [.v6]
 ```
 
+---
+
 ## Installation
 
 ### Xcode
 
 1. Open your project.
 2. Go to **File > Add Package Dependencies...**
-3. Paste your repository URL.
+3. Paste the repository URL.
 4. Add the `Kronot` library to your target.
+
+Repository URL:
+
+```text
+https://github.com/neographic-fab/Kronot.git
+```
 
 ### Package.swift
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/your-name/Kronot.git", branch: "main")
+    .package(url: "https://github.com/neographic-fab/Kronot.git", branch: "main")
 ],
 targets: [
     .target(
@@ -73,6 +117,8 @@ Then import it where needed:
 import Kronot
 ```
 
+---
+
 ## Features
 
 - 24-hour radial time-range selection
@@ -87,6 +133,8 @@ import Kronot
 - Dynamic Type-aware radial label density
 - support for Differentiate Without Color
 - haptic feedback during interaction
+
+---
 
 ## Quick Start
 
@@ -111,6 +159,8 @@ struct ContentView: View {
     }
 }
 ```
+
+---
 
 ## Core Model
 
@@ -151,6 +201,8 @@ let range = TimeRange.currentTime(snapHours: 5)
 
 This creates a range starting from the current time and ending `snapHours` later.
 
+---
+
 ## Interaction Model
 
 Kronot supports three interaction modes:
@@ -166,6 +218,8 @@ During interaction, Kronot:
 - enforces minimum and maximum active duration
 - emits selection haptics
 
+---
+
 ## Configuration Overview
 
 Kronot separates configuration into two layers:
@@ -175,9 +229,7 @@ Kronot separates configuration into two layers:
 
 Both are applied through view modifiers and injected through the environment.
 
----
-
-## Parameters
+### Parameters
 
 Use `.parameters { ... }` to configure behavior and content.
 
@@ -190,7 +242,7 @@ Kronot(range: $range)
     }
 ```
 
-### Behavior
+#### Behavior
 
 `Parameters.Behavior` controls:
 
@@ -216,14 +268,14 @@ Current normalization rules:
 - `maxActiveHours` is clamped to `1...23`
 - `minActiveHours` cannot exceed `maxActiveHours`
 
-### Content
+#### Content
 
 `Parameters.Content` controls:
 
 - radial labels
 - readout accessories
 
-#### Radial labels
+##### Radial labels
 
 ```swift
 Kronot(range: $range)
@@ -241,7 +293,7 @@ Available frequencies:
 .cardinal
 ```
 
-#### Readout accessories
+##### Readout accessories
 
 Kronot can show an accessory for the start and end readouts.
 
@@ -264,9 +316,7 @@ Kronot(range: $range)
     }
 ```
 
----
-
-## DesignTokens
+### DesignTokens
 
 Use `.designTokens { ... }` to customize visuals.
 
@@ -286,9 +336,9 @@ Design tokens are grouped into:
 - `thumb`
 - `readouts`
 
-### Track
+#### Track
 
-`DesignTokens.TrackTokens` controls line width, inset, line cap, marker visibility and the drawing style of the base and selected range.
+`DesignTokens.TrackTokens` controls line width, inset, line cap, marker visibility, and the drawing style of the base track and selected range.
 
 Example:
 
@@ -310,7 +360,7 @@ Track values are sanitized automatically. For example:
 - `inset` cannot be negative
 - marker values are normalized to valid limits
 
-### Tick
+#### Tick
 
 `DesignTokens.TickTokens` controls major and minor tick appearance.
 
@@ -325,7 +375,7 @@ Kronot(range: $range)
     }
 ```
 
-### Radial Labels
+#### Radial Labels
 
 `DesignTokens.RadialLabelsTokens` controls label inset, color, and font.
 
@@ -338,7 +388,7 @@ Kronot(range: $range)
     }
 ```
 
-### Thumb
+#### Thumb
 
 `DesignTokens.ThumbTokens` lets you style the start and end thumbs independently.
 
@@ -362,7 +412,7 @@ Kronot(range: $range)
     }
 ```
 
-### Readouts
+#### Readouts
 
 `DesignTokens.ReadoutsTokens` controls typography and color for start, end, duration, and accessory readouts, including focused and idle states where available.
 
@@ -376,6 +426,8 @@ Kronot(range: $range)
         tokens.readouts.accessory.focused.fontWeight = .semibold
     }
 ```
+
+---
 
 ## Full Example
 
@@ -418,6 +470,8 @@ struct DemoView: View {
 }
 ```
 
+---
+
 ## Localization
 
 Kronot is configured with:
@@ -455,6 +509,8 @@ Current bundled localizations:
 
 Kronot also adapts formatting through locale-aware time output.
 
+---
+
 ## Accessibility
 
 Kronot includes accessibility support for:
@@ -463,6 +519,8 @@ Kronot includes accessibility support for:
 - localized accessibility labels
 - Dynamic Type-aware radial label density
 - Differentiate Without Color support for marker visibility
+
+---
 
 ## Testing
 
@@ -484,11 +542,7 @@ Run the test suite with:
 swift test
 ```
 
-## Notes
-
-- Kronot is currently focused on **iOS** and **SwiftUI**.
-- The component is designed around a 24-hour circular model of the day.
-- Styling and behavior are intentionally split so integration stays small while customization remains flexible.
+---
 
 ## Acknowledgments
 
@@ -496,14 +550,21 @@ Kronot was shaped with the support of people who generously helped during develo
 
 - **Artem Mirzabekian**  
   LinkedIn: https://www.linkedin.com/in/artem-mirzabekian/  
-  GitHub: https://github.com/Livsy90 
-  Artem provided valuable and important support and was especially helpful during the VoiceOver implementation.
+  GitHub: https://github.com/Livsy90  
+  Artem provided valuable support during development and was especially helpful during the VoiceOver implementation.
 
 - **Andrei Ilnitskii**  
   LinkedIn: https://www.linkedin.com/in/andreiilnitskii/  
-  GitHub: https://github.com/indieupme
+  GitHub: https://github.com/indieupme  
   Andrei played a key role in the localization work, with especially important support for the Russian localization.
-  
+
+- **Hemant Bhadak**  
+  LinkedIn: https://www.linkedin.com/in/hemant-bhadak/  
+  GitHub: https://github.com/hemant89  
+  Hemant provided important support for the Hindi localization.
+
+---
+
 ## Localization Review
 
 Additional localization review was provided by native speakers for:
@@ -514,8 +575,10 @@ Additional localization review was provided by native speakers for:
 - Arabic
 
 These reviews were provided privately by native speakers who are not publicly listed here.
-  
+
+---
+
 ## License
 
-Kronot is released under the **MIT License**.
+Kronot is released under the **MIT License**.  
 See the [LICENSE](LICENSE) file for details.

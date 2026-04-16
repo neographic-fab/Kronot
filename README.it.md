@@ -1,6 +1,17 @@
+<div align="center">
+
 # Kronot
 
+### Un selettore radiale di intervallo temporale per SwiftUI
+
 [English version](README.md)
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+![iOS](https://img.shields.io/badge/iOS-18%2B-black)
+![Swift](https://img.shields.io/badge/Swift-6-orange)
+![SPM](https://img.shields.io/badge/SPM-supported-blue)
+
+</div>
 
 **Kronot** è un controllo SwiftUI nativo per selezionare un **intervallo temporale su un quadrante radiale di 24 ore**.
 
@@ -17,20 +28,38 @@ Kronot mantiene l’API pubblica di integrazione abbastanza piccola, ma espone d
 - `Parameters` per comportamento e contenuto
 - `DesignTokens` per lo stile visivo
 
+---
+
+## Contenuti
+
+- [Anteprima](#anteprima)
+- [Requisiti](#requisiti)
+- [Installazione](#installazione)
+- [Caratteristiche principali](#caratteristiche-principali)
+- [Quick Start](#quick-start)
+- [Modello principale](#modello-principale)
+- [Modello di interazione](#modello-di-interazione)
+- [Panoramica della configurazione](#panoramica-della-configurazione)
+- [Localizzazione](#localizzazione)
+- [Accessibilità](#accessibilità)
+- [Test](#test)
+- [Ringraziamenti](#ringraziamenti)
+- [Revisione delle localizzazioni](#revisione-delle-localizzazioni)
+- [Licenza](#licenza)
+
+---
+
 ## Anteprima
 
-### Default
-![Kronot default](Images/default_Kronot.png)
+| Default | Dark Mode |
+|---|---|
+| ![Kronot default](Images/default_Kronot.png) | ![Kronot dark mode](Images/darkMode_Kronot.png) |
 
-### Dark Mode
-![Kronot customized](Images/darkMode_Kronot.png)
+| Azione | Localizzato |
+|---|---|
+| ![Kronot action](Images/move_start_Kronot.png) | ![Kronot localized](Images/arabic_Kronot_Translate.png) |
 
-### Azioni
-![Kronot localized](Images/move_start_Kronot.png)
-
-### Localizzato
-![Kronot accessibility](Images/arabic_Kronot_Translate.png)
-
+---
 
 ## Requisiti
 
@@ -49,6 +78,8 @@ platforms: [.iOS(.v18)]
 swiftLanguageModes: [.v6]
 ```
 
+---
+
 ## Installazione
 
 ### Xcode
@@ -58,11 +89,17 @@ swiftLanguageModes: [.v6]
 3. Incolla l’URL del repository.
 4. Aggiungi la libreria `Kronot` al target desiderato.
 
+URL del repository:
+
+```text
+https://github.com/neographic-fab/Kronot.git
+```
+
 ### Package.swift
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/your-name/Kronot.git", branch: "main")
+    .package(url: "https://github.com/neographic-fab/Kronot.git", branch: "main")
 ],
 targets: [
     .target(
@@ -80,6 +117,8 @@ Poi importa il modulo dove ti serve:
 import Kronot
 ```
 
+---
+
 ## Caratteristiche principali
 
 - selezione radiale di un intervallo su 24 ore
@@ -94,6 +133,8 @@ import Kronot
 - densità delle etichette radiali adattata a Dynamic Type
 - supporto a Differentiate Without Color
 - feedback aptico durante l’interazione
+
+---
 
 ## Quick Start
 
@@ -118,6 +159,8 @@ struct ContentView: View {
     }
 }
 ```
+
+---
 
 ## Modello principale
 
@@ -158,6 +201,8 @@ let range = TimeRange.currentTime(snapHours: 5)
 
 Questo crea un intervallo che parte dall’ora corrente e termina `snapHours` dopo.
 
+---
+
 ## Modello di interazione
 
 Kronot supporta tre modalità principali:
@@ -173,6 +218,8 @@ Durante l’interazione, Kronot:
 - rispetta durata minima e massima attive
 - emette haptics di selezione
 
+---
+
 ## Panoramica della configurazione
 
 Kronot separa la configurazione in due livelli:
@@ -182,9 +229,7 @@ Kronot separa la configurazione in due livelli:
 
 Entrambi vengono applicati tramite view modifier e passati via environment.
 
----
-
-## Parameters
+### Parameters
 
 Usa `.parameters { ... }` per configurare comportamento e contenuto.
 
@@ -197,7 +242,7 @@ Kronot(range: $range)
     }
 ```
 
-### Behavior
+#### Behavior
 
 `Parameters.Behavior` controlla:
 
@@ -223,14 +268,14 @@ Regole di normalizzazione attuali:
 - `maxActiveHours` viene clampato in `1...23`
 - `minActiveHours` non può superare `maxActiveHours`
 
-### Content
+#### Content
 
 `Parameters.Content` controlla:
 
 - etichette radiali
 - accessori dei readout
 
-#### Etichette radiali
+##### Etichette radiali
 
 ```swift
 Kronot(range: $range)
@@ -248,7 +293,7 @@ Frequenze disponibili:
 .cardinal
 ```
 
-#### Accessori dei readout
+##### Accessori dei readout
 
 Kronot può mostrare un accessorio per il readout di start e per quello di end.
 
@@ -271,9 +316,7 @@ Kronot(range: $range)
     }
 ```
 
----
-
-## DesignTokens
+### DesignTokens
 
 Usa `.designTokens { ... }` per personalizzare l’aspetto visivo.
 
@@ -293,7 +336,7 @@ I design tokens sono divisi in:
 - `thumb`
 - `readouts`
 
-### Track
+#### Track
 
 `DesignTokens.TrackTokens` controlla line width, inset, line cap, visibilità del marker e stile di disegno del track base e del range attivo.
 
@@ -317,7 +360,7 @@ I valori del track vengono sanitizzati automaticamente. Per esempio:
 - `inset` non può essere negativo
 - i valori del marker vengono normalizzati entro limiti validi
 
-### Tick
+#### Tick
 
 `DesignTokens.TickTokens` controlla l’aspetto dei tick major e minor.
 
@@ -332,7 +375,7 @@ Kronot(range: $range)
     }
 ```
 
-### Radial Labels
+#### Radial Labels
 
 `DesignTokens.RadialLabelsTokens` controlla inset, colore e font delle etichette radiali.
 
@@ -345,7 +388,7 @@ Kronot(range: $range)
     }
 ```
 
-### Thumb
+#### Thumb
 
 `DesignTokens.ThumbTokens` permette di stilizzare in modo indipendente i thumb di start e di end.
 
@@ -369,7 +412,7 @@ Kronot(range: $range)
     }
 ```
 
-### Readouts
+#### Readouts
 
 `DesignTokens.ReadoutsTokens` controlla tipografia e colore per readout di start, end, durata e accessori, includendo dove previsto stati idle e focused.
 
@@ -383,6 +426,8 @@ Kronot(range: $range)
         tokens.readouts.accessory.focused.fontWeight = .semibold
     }
 ```
+
+---
 
 ## Esempio completo
 
@@ -425,6 +470,8 @@ struct DemoView: View {
 }
 ```
 
+---
+
 ## Localizzazione
 
 Kronot è configurato con:
@@ -462,6 +509,8 @@ Localizzazioni attualmente incluse:
 
 Kronot adatta anche la formattazione dell’orario in base alla locale corrente.
 
+---
+
 ## Accessibilità
 
 Kronot include supporto per:
@@ -470,6 +519,8 @@ Kronot include supporto per:
 - etichette di accessibilità localizzate
 - densità delle etichette radiali adattata a Dynamic Type
 - supporto a Differentiate Without Color per la visibilità del marker
+
+---
 
 ## Test
 
@@ -491,11 +542,7 @@ Per eseguire i test:
 swift test
 ```
 
-## Note
-
-- Kronot è attualmente focalizzato su **iOS** e **SwiftUI**.
-- Il componente è costruito attorno a un modello circolare di giornata su 24 ore.
-- Stile e comportamento sono separati intenzionalmente, così l’integrazione resta piccola ma la personalizzazione rimane flessibile.
+---
 
 ## Ringraziamenti
 
@@ -503,13 +550,20 @@ Kronot è cresciuto anche grazie al supporto di persone che hanno aiutato con ge
 
 - **Artem Mirzabekian**  
   LinkedIn: https://www.linkedin.com/in/artem-mirzabekian/  
-  GitHub: https://github.com/Livsy90
-  Artem ha dato un supporto prezioso ed è stato particolarmente importante durante l’implementazione di VoiceOver.
+  GitHub: https://github.com/Livsy90  
+  Artem ha dato un supporto prezioso durante lo sviluppo ed è stato particolarmente importante durante l’implementazione di VoiceOver.
 
 - **Andrei Ilnitskii**  
   LinkedIn: https://www.linkedin.com/in/andreiilnitskii/  
-  GitHub: https://github.com/indieupme 
+  GitHub: https://github.com/indieupme  
   Andrei ha avuto un ruolo chiave nel lavoro di localizzazione, con un supporto particolarmente importante per la localizzazione in russo.
+
+- **Hemant Bhadak**  
+  LinkedIn: https://www.linkedin.com/in/hemant-bhadak/  
+  GitHub: https://github.com/hemant89  
+  Hemant ha dato un supporto importante per la localizzazione hindi.
+
+---
 
 ## Revisione delle localizzazioni
 
@@ -522,7 +576,9 @@ Ulteriore revisione delle localizzazioni è stata fornita da parlanti madrelingu
 
 Queste revisioni sono state fornite privatamente da parlanti madrelingua che non sono elencati pubblicamente qui.
 
+---
+
 ## Licenza
 
-Kronot è distribuito sotto **licenza MIT**.
+Kronot è distribuito sotto **licenza MIT**.  
 Per i dettagli, vedi il file [LICENSE](LICENSE).
