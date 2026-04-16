@@ -162,8 +162,8 @@ struct ContentView: View {
             Kronot(range: $range)
                 .frame(width: 320, height: 320)
 
-            Text("Start: \(range.start.hour):\(String(format: \"%02d\", range.start.minute))")
-            Text("End: \(range.end.hour):\(String(format: \"%02d\", range.end.minute))")
+            Text("Start: \(range.start.hour):\(String(format: "%02d", range.start.minute))")
+            Text("End: \(range.end.hour):\(String(format: "%02d", range.end.minute))")
         }
         .padding()
     }
@@ -214,9 +214,9 @@ struct ContentView: View {
     }
 
     private func formattedTime(_ components: TimeRange.Components) -> String {
-        let hour = components.hour
-        let minute = String(format: \"%02d\", components.minute)
-        return "\(hour):\(minute)"
+       let hour = components.hour
+       let minute = String(format: "%02d", components.minute)
+       return "\(hour):\(minute)"
     }
 
     private func formattedDuration(_ minutes: Int) -> String {
