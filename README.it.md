@@ -32,11 +32,13 @@ Kronot mantiene l’API pubblica di integrazione abbastanza piccola, ma espone d
 
 ## Contenuti
 
+- [Demo](#demo)
 - [Anteprima](#anteprima)
 - [Requisiti](#requisiti)
 - [Installazione](#installazione)
 - [Caratteristiche principali](#caratteristiche-principali)
 - [Quick Start](#quick-start)
+- [Leggere i valori selezionati](#leggere-i-valori-selezionati)
 - [Modello principale](#modello-principale)
 - [Modello di interazione](#modello-di-interazione)
 - [Panoramica della configurazione](#panoramica-della-configurazione)
@@ -52,8 +54,10 @@ Kronot mantiene l’API pubblica di integrazione abbastanza piccola, ma espone d
 ## Demo
 
 <p align="center">
-  <img src="Images/kronot-demo.gif" alt="Kronot demo" width="500">
+  <img src="Images/kronot-demo.gif" alt="Demo Kronot" width="500">
 </p>
+
+---
 
 ## Anteprima
 
@@ -158,13 +162,76 @@ struct ContentView: View {
             Kronot(range: $range)
                 .frame(width: 320, height: 320)
 
-            Text("Start: \(range.start.hour):\(String(format: "%02d", range.start.minute))")
-            Text("End: \(range.end.hour):\(String(format: "%02d", range.end.minute))")
+            Text("Start: \(range.start.hour):\(String(format: \"%02d\", range.start.minute))")
+            Text("End: \(range.end.hour):\(String(format: \"%02d\", range.end.minute))")
         }
         .padding()
     }
 }
 ```
+
+---
+
+## Leggere i valori selezionati
+
+Kronot aggiorna in tempo reale il `TimeRange` associato al binding durante l’interazione.
+
+Puoi leggere direttamente i valori selezionati dal binding:
+
+```swift
+let startHour = range.start.hour
+let startMinute = range.start.minute
+
+let endHour = range.end.hour
+let endMinute = range.end.minute
+```
+
+Puoi anche presentare i valori selezionati in modo più leggibile, includendo una durata formattata:
+
+```swift
+import SwiftUI
+import Kronot
+
+struct ContentView: View {
+    @State private var range: TimeRange = .currentTime(snapHours: 5)
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Kronot(range: $range)
+                .frame(width: 320, height: 320)
+
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Intervallo selezionato")
+                    .font(.headline)
+
+                Text("Inizio: \(formattedTime(range.start))")
+                Text("Fine: \(formattedTime(range.end))")
+                Text("Durata: \(formattedDuration(range.durationGoingForwardInMinutes))")
+            }
+            .frame(maxWidth: 320, alignment: .leading)
+        }
+        .padding()
+    }
+
+    private func formattedTime(_ components: TimeRange.Components) -> String {
+        let hour = components.hour
+        let minute = String(format: \"%02d\", components.minute)
+        return "\(hour):\(minute)"
+    }
+
+    private func formattedDuration(_ minutes: Int) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.unitsStyle = .abbreviated
+        formatter.zeroFormattingBehavior = .dropAll
+
+        let seconds = TimeInterval(minutes * 60)
+        return formatter.string(from: seconds) ?? "\(minutes) min"
+    }
+}
+```
+
+Questo è utile soprattutto quando vuoi mostrare l’intervallo selezionato in altri punti dell’interfaccia, salvarlo, oppure mapparlo nel tuo modello di dominio.
 
 ---
 

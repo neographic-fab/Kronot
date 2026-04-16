@@ -32,11 +32,13 @@ Kronot keeps its public integration surface small while exposing two clear custo
 
 ## Contents
 
+- [Demo](#demo)
 - [Preview](#preview)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Features](#features)
 - [Quick Start](#quick-start)
+- [Reading Selected Values](#reading-selected-values)
 - [Core Model](#core-model)
 - [Interaction Model](#interaction-model)
 - [Configuration Overview](#configuration-overview)
@@ -54,6 +56,8 @@ Kronot keeps its public integration surface small while exposing two clear custo
 <p align="center">
   <img src="Images/kronot-demo.gif" alt="Kronot demo" width="500">
 </p>
+
+---
 
 ## Preview
 
@@ -158,13 +162,76 @@ struct ContentView: View {
             Kronot(range: $range)
                 .frame(width: 320, height: 320)
 
-            Text("Start: \(range.start.hour):\(String(format: "%02d", range.start.minute))")
-            Text("End: \(range.end.hour):\(String(format: "%02d", range.end.minute))")
+            Text("Start: \(range.start.hour):\(String(format: \"%02d\", range.start.minute))")
+            Text("End: \(range.end.hour):\(String(format: \"%02d\", range.end.minute))")
         }
         .padding()
     }
 }
 ```
+
+---
+
+## Reading Selected Values
+
+Kronot updates the bound `TimeRange` live during interaction.
+
+You can read the selected values directly from the binding:
+
+```swift
+let startHour = range.start.hour
+let startMinute = range.start.minute
+
+let endHour = range.end.hour
+let endMinute = range.end.minute
+```
+
+You can also present the selected values in a more user-friendly way, including a formatted duration:
+
+```swift
+import SwiftUI
+import Kronot
+
+struct ContentView: View {
+    @State private var range: TimeRange = .currentTime(snapHours: 5)
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Kronot(range: $range)
+                .frame(width: 320, height: 320)
+
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Selected Range")
+                    .font(.headline)
+
+                Text("Start: \(formattedTime(range.start))")
+                Text("End: \(formattedTime(range.end))")
+                Text("Duration: \(formattedDuration(range.durationGoingForwardInMinutes))")
+            }
+            .frame(maxWidth: 320, alignment: .leading)
+        }
+        .padding()
+    }
+
+    private func formattedTime(_ components: TimeRange.Components) -> String {
+        let hour = components.hour
+        let minute = String(format: \"%02d\", components.minute)
+        return "\(hour):\(minute)"
+    }
+
+    private func formattedDuration(_ minutes: Int) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.unitsStyle = .abbreviated
+        formatter.zeroFormattingBehavior = .dropAll
+
+        let seconds = TimeInterval(minutes * 60)
+        return formatter.string(from: seconds) ?? "\(minutes) min"
+    }
+}
+```
+
+This is useful when you want to display the selected range elsewhere in your UI, persist it, or map it into your own domain model.
 
 ---
 

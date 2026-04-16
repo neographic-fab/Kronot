@@ -57,7 +57,7 @@ public struct TimeRange: Equatable {
     /// Examples:
     /// - `08:00 -> 10:00 = 120`
     /// - `22:00 -> 01:00 = 180`
-    var durationGoingForwardInMinutes: Int {
+    public var durationGoingForwardInMinutes: Int {
         Self.forwardDuration(from: start.minutesSinceMidnight, to: end.minutesSinceMidnight)
     }
     
